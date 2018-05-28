@@ -58,7 +58,7 @@ class User(Base):
 
     @validates('name')
     def validate_isemail_name(self, key, name):
-        assert re.match(EMAIL_REGEX, name) is not None
+        assert re.match(EMAIL_REGEX, name) is not None, f"'{name}' is not a valid email"
         return name
 
     def __repr__(self):
@@ -78,7 +78,7 @@ class Group(Base):
 class Privilege(Base):
     __tablename__ = 'privilege'
     id = Column(Integer, primary_key=True)
-    user_id = Column(String, ForeignKey('user.name'), nullable=False)
+    user_id = Column(Integer, ForeignKey('user.id'), nullable=False)
     user = relationship('User', backref=backref('privileges'))
     small_app_id = Column(String, ForeignKey('smallapp.id'), nullable=False)
     small_app = relationship('SmallApp', backref=backref('privileges'))

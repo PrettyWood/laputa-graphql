@@ -37,8 +37,7 @@ class Query(graphene.ObjectType):
         return query.first()
 
     def resolve_all_small_apps(self, info):
-        query = SmallApp.get_query(info)
-        return query.all()
+        return SmallApp.get_query(info).all()
 
     # USERS
     user = graphene.Field(User,
@@ -52,8 +51,7 @@ class Query(graphene.ObjectType):
         return query.first()
 
     def resolve_all_users(self, info):
-        query = User.get_query(info)
-        return query.all()
+        return User.get_query(info).all()
 
     # GROUPS
     group = graphene.Field(Group,
@@ -67,8 +65,7 @@ class Query(graphene.ObjectType):
         return query.first()
 
     def resolve_all_groups(self, info):
-        query = Group.get_query(info)
-        return query.all()
+        return Group.get_query(info).all()
 
     # PRIVILEGES
     privilege = graphene.Field(Privilege,
@@ -79,21 +76,30 @@ class Query(graphene.ObjectType):
     all_privileges = graphene.List(Privilege)
 
     def resolve_privilege(self, info, username, small_app_id):
-        query = Privilege.get_query(info)
-        return (query.filter(models.Privilege.user_id == username)
-                     .filter(models.Privilege.small_app_id == small_app_id)
-                     .first())
+        user = (User.get_query(info)
+                    .filter(models.User.name == username)
+                    .first())
+        return (Privilege.get_query(info)
+                         .filter(models.Privilege.user_id == user.id)
+                         .filter(models.Privilege.small_app_id == small_app_id)
+                         .first())
 
     def resolve_privileges(self, info, username):
-        query = Privilege.get_query(info)
-        return (query.filter(models.Privilege.user_id == username)
-                     .all())
+        user = (User.get_query(info)
+                    .filter(models.User.name == username)
+                    .first())
+        return (Privilege.get_query(info)
+                         .filter(models.Privilege.user_id == user.id)
+                         .all())
 
     def resolve_all_privileges(self, info):
-        query = Privilege.get_query(info)
-        return query.all()
+        return Privilege.get_query(info).all()
 
-from mutations import CreateSmallApp, UpdateSmallApp, DeleteSmallApp
+
+from mutations.small_app import CreateSmallApp, UpdateSmallApp, DeleteSmallApp
+from mutations.user import CreateUser, UpdateUser, DeleteUser
+from mutations.group import CreateGroup, UpdateGroup, DeleteGroup
+from mutations.privilege import CreatePrivilege, UpdatePrivilege, DeletePrivilege
 
 
 class Mutation(graphene.ObjectType):
@@ -101,5 +107,18 @@ class Mutation(graphene.ObjectType):
     updateSmallApp = UpdateSmallApp.Field()
     deleteSmallApp = DeleteSmallApp.Field()
 
+    createUser = CreateUser.Field()
+    updateUser = UpdateUser.Field()
+    deleteUser = DeleteUser.Field()
 
-schema = graphene.Schema(query=Query, mutation=Mutation, types=[SmallApp])
+    createGroup = CreateGroup.Field()
+    updateGroup = UpdateGroup.Field()
+    deleteGroup = DeleteGroup.Field()
+
+    createPrivilege = CreatePrivilege.Field()
+    updatePrivilege = UpdatePrivilege.Field()
+    deletePrivilege = DeletePrivilege.Field()
+
+
+schema = graphene.Schema(query=Query, mutation=Mutation,
+                         types=[SmallApp, User, Group, Privilege])

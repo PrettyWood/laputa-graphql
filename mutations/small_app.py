@@ -28,7 +28,6 @@ class UpdateSmallApp(graphene.Mutation):
         name = graphene.String()
         stage = graphene.Enum.from_enum(models.Stage)()
 
-    # Class attributes
     small_app = graphene.Field(lambda: SmallApp)
     ok = graphene.Boolean()
 
