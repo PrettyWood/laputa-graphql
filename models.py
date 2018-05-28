@@ -78,9 +78,11 @@ class Group(Base):
 class Privilege(Base):
     __tablename__ = 'privilege'
     id = Column(Integer, primary_key=True)
-    # user_id = Column(Integer, ForeignKey('user.id'), nullable=False)
-    # small_app_id = Column(Integer, ForeignKey('small_app.id'), nullable=False)
-    # role = Column(Enum(PrivilegeEnum), default=PrivilegeEnum.NONE)
-    # lambda x: [e.value for e in x]
-    # def __repr__(self):
-    #     return f'<Privilege {self.user_id!r}, {self.small_app_id!r}, {self.role!r}>'
+    user_id = Column(String, ForeignKey('user.name'), nullable=False)
+    user = relationship('User', backref=backref('privileges'))
+    small_app_id = Column(String, ForeignKey('smallapp.id'), nullable=False)
+    small_app = relationship('SmallApp', backref=backref('privileges'))
+    privilege = Column(Enum(PrivilegeEnum), default=PrivilegeEnum.NONE)
+
+    def __repr__(self):
+        return f'<Privilege {self.user_id!r}, {self.small_app_id!r}, {self.privilege!r}>'

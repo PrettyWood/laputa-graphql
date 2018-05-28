@@ -37,10 +37,15 @@ def init_db():
     db_session.add(fred)
 
     # Privileges
-    # privilege1 = Privilege(user=eric, small_app=demo, role=PrivilegeEnum.CONTRIBUTE)
-    # privilege1 = Privilege(role=PrivilegeEnum.CONTRIBUTE)
-    # db_session.add(privilege1)
-    # privilege2 = Privilege()
-    # db_session.add(privilege2)
+    privilege1 = Privilege(user=eric, small_app=demo, privilege=PrivilegeEnum.CONTRIBUTE)
+    db_session.add(privilege1)
+    privilege2 = Privilege(user=eric, small_app=nani, privilege=PrivilegeEnum.CONTRIBUTE)
+    db_session.add(privilege2)
+    privilege3 = Privilege(user=fred, small_app=demo, privilege=PrivilegeEnum.CONTRIBUTE)
+    db_session.add(privilege3)
+    privilege4 = Privilege(user=fred, small_app=nani, privilege=PrivilegeEnum.VIEW)
+    db_session.add(privilege4)
+    privilege5 = Privilege(user=laure, small_app=demo, privilege=PrivilegeEnum.VIEW)
+    db_session.add(privilege5)
 
     db_session.commit()

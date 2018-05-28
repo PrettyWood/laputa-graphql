@@ -18,12 +18,17 @@ class Group(SQLAlchemyObjectType):
         model = models.Group
 
 
+class Privilege(SQLAlchemyObjectType):
+    class Meta:
+        model = models.Privilege
+
+
 class Query(graphene.ObjectType):
     # SMALL APPS
     small_app = graphene.Field(SmallApp,
                                id=graphene.String(required=False),
                                name=graphene.String(required=False))
-    small_apps = graphene.List(SmallApp)
+    all_small_apps = graphene.List(SmallApp)
 
     def resolve_small_app(self, info, **kwargs):
         query = SmallApp.get_query(info)
@@ -31,14 +36,14 @@ class Query(graphene.ObjectType):
             query = query.filter(getattr(models.SmallApp, key) == value)
         return query.first()
 
-    def resolve_small_apps(self, info):
+    def resolve_all_small_apps(self, info):
         query = SmallApp.get_query(info)
         return query.all()
 
     # USERS
     user = graphene.Field(User,
                           name=graphene.String(required=True))
-    users = graphene.List(User)
+    all_users = graphene.List(User)
 
     def resolve_user(self, info, **kwargs):
         query = User.get_query(info)
@@ -46,14 +51,14 @@ class Query(graphene.ObjectType):
             query = query.filter(getattr(models.User, key) == value)
         return query.first()
 
-    def resolve_users(self, info):
+    def resolve_all_users(self, info):
         query = User.get_query(info)
         return query.all()
 
     # GROUPS
     group = graphene.Field(Group,
                            name=graphene.String(required=True))
-    groups = graphene.List(Group)
+    all_groups = graphene.List(Group)
 
     def resolve_group(self, info, **kwargs):
         query = Group.get_query(info)
@@ -61,8 +66,31 @@ class Query(graphene.ObjectType):
             query = query.filter(getattr(models.Group, key) == value)
         return query.first()
 
-    def resolve_groups(self, info):
+    def resolve_all_groups(self, info):
         query = Group.get_query(info)
+        return query.all()
+
+    # PRIVILEGES
+    privilege = graphene.Field(Privilege,
+                               username=graphene.String(required=True),
+                               small_app_id=graphene.String(required=True))
+    privileges = graphene.List(Privilege,
+                               username=graphene.String(required=True))
+    all_privileges = graphene.List(Privilege)
+
+    def resolve_privilege(self, info, username, small_app_id):
+        query = Privilege.get_query(info)
+        return (query.filter(models.Privilege.user_id == username)
+                     .filter(models.Privilege.small_app_id == small_app_id)
+                     .first())
+
+    def resolve_privileges(self, info, username):
+        query = Privilege.get_query(info)
+        return (query.filter(models.Privilege.user_id == username)
+                     .all())
+
+    def resolve_all_privileges(self, info):
+        query = Privilege.get_query(info)
         return query.all()
 
 from mutations import CreateSmallApp, UpdateSmallApp, DeleteSmallApp
