@@ -23,6 +23,11 @@ class Privilege(SQLAlchemyObjectType):
         model = models.Privilege
 
 
+class Comment(SQLAlchemyObjectType):
+    class Meta:
+        model = models.Comment
+
+
 class Query(graphene.ObjectType):
     # SMALL APPS
     small_app = graphene.Field(SmallApp,
@@ -95,11 +100,47 @@ class Query(graphene.ObjectType):
     def resolve_all_privileges(self, info):
         return Privilege.get_query(info).all()
 
+    # COMMENTS
+    comments = graphene.Field(Comment,
+                              username=graphene.String(required=True),
+                              small_app_id=graphene.String(required=True),
+                              slide_id=graphene.Int(required=True))
+    user_comments = graphene.List(Comment,
+                                  username=graphene.String(required=True),
+                                  small_app_id=graphene.String(required=True))
+    all_small_app_comments = graphene.List(Comment,
+                                           small_app_id=graphene.String(required=True))
+
+    def resolve_comments(self, info, username, small_app_id, slide_id):
+        user = (User.get_query(info)
+                    .filter(models.User.name == username)
+                    .first())
+        return (Comment.get_query(info)
+                       .filter(models.Comment.user_id == user.id)
+                       .filter(models.Comment.small_app_id == small_app_id)
+                       .filter(models.Comment.slide_id == slide_id)
+                       .all())
+
+    def resolve_user_comments(self, info, username, small_app_id):
+        user = (User.get_query(info)
+                    .filter(models.User.name == username)
+                    .first())
+        return (Comment.get_query(info)
+                       .filter(models.Comment.user_id == user.id)
+                       .filter(models.Comment.small_app_id == small_app_id)
+                       .all())
+
+    def resolve_all_small_app_comments(self, info, small_app_id):
+        return (Comment.get_query(info)
+                       .filter(models.Comment.small_app_id == small_app_id)
+                       .all())
+
 
 from mutations.small_app import CreateSmallApp, UpdateSmallApp, DeleteSmallApp
 from mutations.user import CreateUser, UpdateUser, DeleteUser
 from mutations.group import CreateGroup, UpdateGroup, DeleteGroup
 from mutations.privilege import CreatePrivilege, UpdatePrivilege, DeletePrivilege
+from mutations.comment import CreateComment, UpdateComment, DeleteComment
 
 
 class Mutation(graphene.ObjectType):
@@ -118,6 +159,10 @@ class Mutation(graphene.ObjectType):
     createPrivilege = CreatePrivilege.Field()
     updatePrivilege = UpdatePrivilege.Field()
     deletePrivilege = DeletePrivilege.Field()
+
+    createComment = CreateComment.Field()
+    updateComment = UpdateComment.Field()
+    deleteComment = DeleteComment.Field()
 
 
 schema = graphene.Schema(query=Query, mutation=Mutation,

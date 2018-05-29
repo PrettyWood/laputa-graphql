@@ -86,3 +86,17 @@ class Privilege(Base):
 
     def __repr__(self):
         return f'<Privilege {self.user_id!r}, {self.small_app_id!r}, {self.privilege!r}>'
+
+
+class Comment(Base):
+    __tablename__ = 'comment'
+    id = Column(Integer, primary_key=True)
+    user_id = Column(Integer, ForeignKey('user.id'), nullable=False)
+    user = relationship('User', backref=backref('comments'))
+    small_app_id = Column(String, ForeignKey('smallapp.id'), nullable=False)
+    small_app = relationship('SmallApp', backref=backref('comments'))
+    slide_id = Column(Integer, nullable=False)
+    message = Column(String, nullable=False)
+
+    def __repr__(self):
+        return f'<Comment {self.user_id!r}, {self.small_app_id!r}, {self.message!r}>'

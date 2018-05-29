@@ -11,7 +11,7 @@ Base.query = db_session.query_property()
 
 
 def init_db():
-    from models import SmallApp, Group, User, PrivilegeEnum, Privilege, Role
+    from models import SmallApp, Group, User, PrivilegeEnum, Privilege, Role, Comment
     Base.metadata.drop_all(bind=engine)
     Base.metadata.create_all(bind=engine)
 
@@ -47,5 +47,14 @@ def init_db():
     db_session.add(privilege4)
     privilege5 = Privilege(user=laure, small_app=demo, privilege=PrivilegeEnum.VIEW)
     db_session.add(privilege5)
+
+    # Comments
+    comment1 = Comment(user=eric, small_app=demo, slide_id=420, message='Toucan Toco rocks!')
+    db_session.add(comment1)
+    comment2 = Comment(user=fred, small_app=demo, slide_id=420, message='Toucan Toco rocks indeed!')
+    db_session.add(comment2)
+    comment3 = Comment(user=eric, small_app=demo, slide_id=666,
+                       message='Did I say that Toucan Toco rocks?')
+    db_session.add(comment3)
 
     db_session.commit()
